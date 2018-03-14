@@ -66,16 +66,24 @@ int main()
 		std::cin>>order;
 	}
 	std::cout <<"Enter coefficients from the lowest order to the highest order\n";
-	for (i=order;i>=0;i--){
-		std::cout<<"a"<<order-i<<": ";
-		std::cin>>a[order-i];
-		if (i==order) {
-			tmp=a[order-i];
-			a[order-i]=1.0;
-		}
-		else a[order-i]/=tmp;
-		d[order-i]=a[order-i];
+	for (i=0;i<=order;i++){
+		std::cout <<"a("<<order<<")=";
+		std::cin >> a[order-i];
 	}
+	for (int v=0; v<=order; v++)
+  {
+    std::cout <<a[v]<<std::endl;
+  }
+			tmp=a[0];
+			a[0]=1.0;
+			d[0]=1.0;
+
+	for (int p=1; p<=order; p++)
+  {
+    	a[p]/=tmp;
+		d[p]=a[p];
+  }
+
 	b[0]=c[0]=1.0;
 	n=order;
 	precision_error_flag=0;
