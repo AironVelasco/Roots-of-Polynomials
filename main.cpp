@@ -3,7 +3,8 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
-
+#include <complex>
+using namespace std;
 #define MAX_TERMS 21
 int precision_error_flag;
 int order;
@@ -11,6 +12,7 @@ double *a;
 double *b;
 double *c;
 double *d;
+double *e;
 
 void find_poly_roots(int n)
 {
@@ -75,10 +77,12 @@ int main()
     b= new (std::nothrow) double[order+1];
       c= new (std::nothrow) double[order+1];
         d= new (std::nothrow) double[order+1];
+        e= new (std::nothrow) double[order+1];
 	std::cout <<"Enter coefficients from the lowest order to the highest order\n";
 	for (i=0;i<=order;i++){
 		std::cout <<"a("<<order<<")=";
 		std::cin >> a[order-i];
+		e[order-i]=a[order-i];
 	}
 	for (int v=0; v<=order; v++)
   {
@@ -107,4 +111,57 @@ int main()
 		std::cout <<"t^2  +  "<<a[i-1]<<"t  +  "<<a[i]<<"\n";
 	if ((n % 2) == 1)
 		std::cout <<"The linear term is: \nt  +  "<<a[1]<<"\n";
+
+	complex<double> factr[order];
+    complex<double> x[2];
+    int f=0;
+    for (int l=order; l>=2; l-=2)
+    {
+    x[0]= (a[l-1]*a[l-1]-4*a[l])/4;
+    x[0]= sqrt(x[0]);
+    x[0]= x[0];
+    x[0]+= -a[l-1]/2;
+    factr[f]=x[0];
+    f++;
+    //cout << x[0]<<endl;
+    x[1]= (a[l-1]*a[l-1]-4*a[l])/4;
+    x[1]= sqrt(x[1]);
+    x[1]= (-a[l-1]/2)-x[1];
+   // cout << x[1]<<endl;
+    factr[f]=x[1];
+    f++;
+    }
+    if (order%2==1)
+    factr[f]=-a[1];
+    for (int i=0; i<=f; i++)
+    {
+        cout <<factr[i]<<endl;
+    }
+
+complex<double> answer;
+      answer={0,0};
+      for (int j=0; j<order;j++)
+      {
+
+    for (int i=0; i<order+1;i++)
+  {
+
+    cout << "Horner Step:" << i+1<<endl;
+    answer=answer+e[i];
+    //cout <<"Before Root Answer:" <<answer<<endl;
+    if (i!=order)
+    {
+          answer=answer*factr[j];
+              cout <<"After Root Answer:" <<answer<<endl;
+    }
+    else
+    {
+      break;
+    }
+  }
+  cout <<"---------------------------"<<endl;
+  cout <<"Final Answer:" <<answer;
+  answer={0,0};
+  cout <<endl;
+      }
 }
