@@ -2,10 +2,10 @@
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
-#include <vector>
 #include <complex>
+#include <fstream>
+#include <iomanip>
 using namespace std;
-#define MAX_TERMS 21
 int precision_error_flag;
 int order;
 double *a;
@@ -64,26 +64,60 @@ void find_poly_roots(int n)
 }
 
 
-int main()
+int main(int argc, char *argv[])
 {
-	int i,n;//order=0;
-	double tmp;
+  std::cout << std::fixed;
+    std::cout << std::setprecision(6);
+    int n;
+    //-----------------------------
+    ifstream polytest;
+    string faradon;
+  if (argv)
+  {
+      cout <<"filename?";
+      cin >> faradon;
+      polytest.open(faradon.c_str());
+  }
+  else
+  {
+        cout << argv[1] << endl;
+        polytest.open(argv[1]);
+  }
+  while (!polytest)
+  {
+    cout << "Filename?";
+    cin >> faradon;
+    polytest.open(faradon.c_str());
+  }
 
+  polytest >> order;
+  a= new double[order+1];
+    b= new double[order+1];
+      c= new double[order+1];
+        d= new double[order+1];
+        e= new double[order+1];
+
+  //inputs coefficients
+  for (int i=0;i<=order;i++){
+		//std::cout <<"a("<<order<<")=";
+		polytest >> a[order-i];
+		e[order-i]=a[order-i];
+	}
+    //-------------------------------------------------
+//	int i,n;//order=0;
+	double tmp;
+/*
 	while ((order < 2)){
 		std::cout <<"Polynomial order (2-X): ";
 		std::cin>>order;
 	}
-  a= new (std::nothrow) double[order+1];
-    b= new (std::nothrow) double[order+1];
-      c= new (std::nothrow) double[order+1];
-        d= new (std::nothrow) double[order+1];
-        e= new (std::nothrow) double[order+1];
+
 	std::cout <<"Enter coefficients from the lowest order to the highest order\n";
 	for (i=0;i<=order;i++){
 		std::cout <<"a("<<order<<")=";
 		std::cin >> a[order-i];
 		e[order-i]=a[order-i];
-	}
+	}*/
 	for (int v=0; v<=order; v++)
   {
     std::cout <<a[v]<<std::endl;
@@ -107,7 +141,7 @@ int main()
 	}
 	std::cout <<"The quadratic factors are:\n";
 
-	for (i=order; i>=2; i-=2) /* print quadratics */
+	for (int i=order; i>=2; i-=2) /* print quadratics */
 		std::cout <<"t^2  +  "<<a[i-1]<<"t  +  "<<a[i]<<"\n";
 	if ((n % 2) == 1)
 		std::cout <<"The linear term is: \nt  +  "<<a[1]<<"\n";
@@ -133,35 +167,77 @@ int main()
     }
     if (order%2==1)
     factr[f]=-a[1];
-    for (int i=0; i<=f; i++)
+    for (int i=0; i<=f-1; i++)
     {
         cout <<factr[i]<<endl;
     }
+    if (order%2==1)
+        cout <<factr[f]<<endl;
 
-complex<double> answer;
-      answer={0,0};
+complex<double> answer[order+1];
+     // answer={0,0};
       for (int j=0; j<order;j++)
       {
 
     for (int i=0; i<order+1;i++)
   {
 
-    cout << "Horner Step:" << i+1<<endl;
-    answer=answer+e[i];
+   // cout << "Horner Step:" << i+1<<endl;
+    answer[j]=answer[j]+e[i];
     //cout <<"Before Root Answer:" <<answer<<endl;
     if (i!=order)
     {
-          answer=answer*factr[j];
-              cout <<"After Root Answer:" <<answer<<endl;
+          answer[j]=answer[j]*factr[j];
+   //           cout <<"After Root Answer:" <<answer<<endl;
     }
     else
     {
       break;
     }
   }
-  cout <<"---------------------------"<<endl;
-  cout <<"Final Answer:" <<answer;
-  answer={0,0};
-  cout <<endl;
+  //cout <<"---------------------------"<<endl;
+  //cout <<"Final Answer:" <<answer;
+  //answer={0,0};
+  //cout <<endl;
       }
+
+       ofstream saveFile ("Results.txt");
+
+  saveFile << "Polynomial:" << endl;
+
+  for (int ox=0; ox< order; ox++)
+  {
+    saveFile << e[ox] << "x^" <<order-ox <<" + " ;
+    cout << e[ox] << "x^" <<order-ox <<" + " ;
+  }
+  saveFile << e[order] << endl;
+  cout << e[order] << endl;
+
+  saveFile << endl;
+
+  saveFile << "Roots:" << endl;
+
+  for (int i=0; i<=f-1; i++)
+  {
+    saveFile << factr[i] << endl;
+  }
+  if (order%2==1)
+  {
+    saveFile <<factr[f] << endl;
+  }
+  saveFile << endl;
+
+  saveFile << "Evaluating polynomial at identified roots:" << endl;
+  for (int kxi=0; kxi < f; kxi++)
+  {
+    cout << factr[kxi] <<" = " <<answer[kxi] << endl;
+    saveFile << factr[kxi] << " = " << answer[kxi] << endl;
+  }
+  if (order%2==1)
+  {
+    saveFile <<factr[f] << " = " << answer[f] << endl;
+  }
+  saveFile.close();
+
+  return 0;
 }
