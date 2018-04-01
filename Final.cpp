@@ -61,12 +61,6 @@ void findQuadraticTerms(int n)
 		drn=b[n] * c[n-3] - b[n-1] * c[n-2];
 		dsn=b[n-1] * c[n-1] - b[n] * c[n-2];
 
-		if (dabs(dn) < 1e-16)
-    {
-			dn = 1;
-			drn = 1;
-			dsn = 1;
-		}
 		dr = drn / dn;
 		ds = dsn / dn;
 
@@ -294,3 +288,4 @@ int main(int argc, char *argv[])
 
   return 0;
 }
+
