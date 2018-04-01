@@ -33,20 +33,20 @@ double dabs(double x)
 //Function to acquire the roots of the polynomial
 void findQuadraticTerms(int n)
 {
-  double r,s,dn,dr,ds,drn,dsn,eps;
+  double r,s,dn,dr,ds,drn,dsn,precision;
 	int iter;
 
 	r = s = 0;
 	dr = 1.0;
 	ds = 0;
-	eps = 1e-300;
+	precision = 1e-300;
 	iter = 1;
 
-	while ((dabs(dr)+dabs(ds)) > eps)
+	while ((dabs(dr)+dabs(ds)) > precision)
   {
 		if ((iter % 500) == 0)
 		{
-			eps*=10.0;
+			precision*=10.0;
 			precisionErrorFlag=1;
 		}
 		b[1] = quadCoeff[1] - r;
@@ -202,11 +202,11 @@ void saveToFile()
   saveFile << endl << "Evaluating polynomial at identified roots:" << endl;
   for (int i=0; i < numRoots; i++)
   {
-    saveFile << roots[i] << " = " << rootsEval[i] << endl;
+    saveFile << "f" << roots[i] << " = " << rootsEval[i] << endl;
   }
   if (polyOrder%2==1)
   {
-    saveFile <<roots[numRoots] << " = " << rootsEval[numRoots] << endl;
+    saveFile << "f" << roots[numRoots] << " = " << rootsEval[numRoots] << endl;
   }
   saveFile.close();
 }
@@ -235,7 +235,11 @@ void outputToConsole()
   cout << endl << "Evaluating polynomial at identified roots:" << endl;
   for (int i=0; i < numRoots; i++)
   {
-    cout << roots[i] <<" = " << rootsEval[i] << endl;
+    cout << "f" << roots[i] << " = " << rootsEval[i] << endl;
+  }
+  if (polyOrder%2==1)
+  {
+    cout << "f" << roots[numRoots] << " = " << rootsEval[numRoots] << endl;
   }
   cout << endl;
 }
