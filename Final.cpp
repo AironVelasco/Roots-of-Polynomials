@@ -30,7 +30,7 @@ double dabs(double x)
   }
 }
 
-//Function to acqire the roots of the polynomial
+//Function to acquire the roots of the polynomial
 void findQuadraticTerms(int n)
 {
   double r,s,dn,dr,ds,drn,dsn,eps;
@@ -85,6 +85,50 @@ void findQuadraticTerms(int n)
   }
 	coeff[n] = s;
 	coeff[n-1] = r;
+}
+
+//Function to find the root of a polynomial given its order and coefficients
+void findRoot()
+{
+  double tmp;
+  tmp=coeff[0];
+  coeff[0]=1.0;
+
+	for (int p=1; p<=polyOrder; p++)
+  {
+    coeff[p]/=tmp;
+  }
+
+	b[0]=c[0]=1.0;
+  int numQuad = polyOrder;
+	precisionErrorFlag=0;
+	while (numQuad > 2)
+  {
+		findQuadraticTerms(numQuad);
+    numQuad -= 2;
+	}
+
+	roots = new complex<double>[polyOrder];
+  complex<double> x[2];
+  numRoots=0;
+  for (int l=polyOrder; l>=2; l-=2)
+  {
+    x[0]= (coeff[l-1]*coeff[l-1]-4*coeff[l])/4;
+    x[0]= sqrt(x[0]);
+    x[0]= x[0];
+    x[0]+= -coeff[l-1]/2;
+    roots[numRoots]=x[0];
+    numRoots++;
+    x[1]= (coeff[l-1]*coeff[l-1]-4*coeff[l])/4;
+    x[1]= sqrt(x[1]);
+    x[1]= (-coeff[l-1]/2)-x[1];
+    roots[numRoots]=x[1];
+    numRoots++;
+  }
+  if (polyOrder%2==1)
+  {
+    roots[numRoots]=-coeff[1];
+  }
 }
 
 void inputFile(int argc, char *argv[])
@@ -176,7 +220,7 @@ void saveToFile()
   saveFile.close();
 }
 
-//Function which outputs the inputted polynomial, the roots of the 
+//Function which outputs the input polynomial, the roots of the
 //polynomial, and the evaluated values of the acquired polynomial
 void outputToConsole()
 {
@@ -205,51 +249,8 @@ void outputToConsole()
   cout << endl;
 }
 
-//Function to find the root of a polynomial given its order and coefficients
-void findRoot()
-{
-  double tmp;
-  tmp=coeff[0];
-  coeff[0]=1.0;
-
-	for (int p=1; p<=polyOrder; p++)
-  {
-    coeff[p]/=tmp;
-  }
-
-	b[0]=c[0]=1.0;
-  int numQuad = polyOrder;
-	precisionErrorFlag=0;
-	while (numQuad > 2)
-  {
-		findQuadraticTerms(numQuad);
-    numQuad -= 2;
-	}
-
-	roots = new complex<double>[polyOrder];
-  complex<double> x[2];
-  numRoots=0;
-  for (int l=polyOrder; l>=2; l-=2)
-  {
-    x[0]= (coeff[l-1]*coeff[l-1]-4*coeff[l])/4;
-    x[0]= sqrt(x[0]);
-    x[0]= x[0];
-    x[0]+= -coeff[l-1]/2;
-    roots[numRoots]=x[0];
-    numRoots++;
-    x[1]= (coeff[l-1]*coeff[l-1]-4*coeff[l])/4;
-    x[1]= sqrt(x[1]);
-    x[1]= (-coeff[l-1]/2)-x[1];
-    roots[numRoots]=x[1];
-    numRoots++;
-  }
-  if (polyOrder%2==1)
-  {
-    roots[numRoots]=-coeff[1];
-  }
-}
-
-//Function which evaluates the roots acquired in findRoots to determine if they are indeed roots of the polynomial
+//Function which evaluates the roots acquired in findRoots to determine
+//if they are indeed roots of the polynomial
 void evalRoots()
 {
   rootsEval = new complex<double>[polyOrder+1];
@@ -257,13 +258,10 @@ void evalRoots()
   {
     for (int i=0; i<polyOrder+1;i++)
     {
-      // cout << "Horner Step:" << i+1<<endl;
       rootsEval[j]=rootsEval[j]+e[i];
-      //cout <<"Before Root Answer:" <<answer<<endl;
       if (i!=polyOrder)
       {
         rootsEval[j]=rootsEval[j]*roots[j];
-        //cout <<"After Root Answer:" <<answer<<endl;
       }
       else
       {
