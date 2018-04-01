@@ -12,10 +12,10 @@ int polyOrder;
 int numRoots;
 complex<double> *roots;
 complex<double> *rootsEval;
-double *coeff;
+double *quadCoeff;
 double *b;
 double *c;
-double *e;
+double *inputCoeff;
 
 //Function to get the absolute value of a double
 double dabs(double x)
@@ -34,7 +34,7 @@ double dabs(double x)
 void findQuadraticTerms(int n)
 {
   double r,s,dn,dr,ds,drn,dsn,eps;
-	int i,iter;
+	int iter;
 
 	r = s = 0;
 	dr = 1.0;
@@ -44,22 +44,17 @@ void findQuadraticTerms(int n)
 
 	while ((dabs(dr)+dabs(ds)) > eps)
   {
-		if ((iter % 200) == 0)
-		{
-			r=(double)rand()/16000.;
-		}
 		if ((iter % 500) == 0)
 		{
 			eps*=10.0;
 			precisionErrorFlag=1;
-			cout<<"Loss of precision\n";
 		}
-		b[1] = coeff[1] - r;
+		b[1] = quadCoeff[1] - r;
 		c[1] = b[1] - r;
 
-		for (i=2;i<=n;i++)
+		for (int i=2;i<=n;i++)
     {
-			b[i] = coeff[i] - r * b[i-1] - s * b[i-2];
+			b[i] = quadCoeff[i] - r * b[i-1] - s * b[i-2];
 			c[i] = b[i] - r * c[i-1] - s * c[i-2];
 		}
 		dn=c[n-1] * c[n-3] - c[n-2] * c[n-2];
@@ -79,24 +74,24 @@ void findQuadraticTerms(int n)
 		s += ds;
 		iter++;
 	}
-	for (i=0;i<n-1;i++)
+	for (int i=0;i<n-1;i++)
   {
-		coeff[i] = b[i];
+		quadCoeff[i] = b[i];
   }
-	coeff[n] = s;
-	coeff[n-1] = r;
+	quadCoeff[n] = s;
+	quadCoeff[n-1] = r;
 }
 
 //Function to find the root of a polynomial given its order and coefficients
 void findRoot()
 {
   double tmp;
-  tmp=coeff[0];
-  coeff[0]=1.0;
+  tmp=quadCoeff[0];
+  quadCoeff[0]=1.0;
 
 	for (int p=1; p<=polyOrder; p++)
   {
-    coeff[p]/=tmp;
+    quadCoeff[p]/=tmp;
   }
 
 	b[0]=c[0]=1.0;
@@ -109,28 +104,30 @@ void findRoot()
 	}
 
 	roots = new complex<double>[polyOrder];
-  complex<double> x[2];
+  complex<double> quadRoots[2];
   numRoots=0;
   for (int l=polyOrder; l>=2; l-=2)
   {
-    x[0]= (coeff[l-1]*coeff[l-1]-4*coeff[l])/4;
-    x[0]= sqrt(x[0]);
-    x[0]= x[0];
-    x[0]+= -coeff[l-1]/2;
-    roots[numRoots]=x[0];
+    quadRoots[0]= (quadCoeff[l-1]*quadCoeff[l-1]-4*quadCoeff[l])/4;
+    quadRoots[0]= sqrt(quadRoots[0]);
+    quadRoots[0]= quadRoots[0];
+    quadRoots[0]+= -quadCoeff[l-1]/2;
+    roots[numRoots]=quadRoots[0];
     numRoots++;
-    x[1]= (coeff[l-1]*coeff[l-1]-4*coeff[l])/4;
-    x[1]= sqrt(x[1]);
-    x[1]= (-coeff[l-1]/2)-x[1];
-    roots[numRoots]=x[1];
+    quadRoots[1]= (quadCoeff[l-1]*quadCoeff[l-1]-4*quadCoeff[l])/4;
+    quadRoots[1]= sqrt(quadRoots[1]);
+    quadRoots[1]= (-quadCoeff[l-1]/2)-quadRoots[1];
+    roots[numRoots]=quadRoots[1];
     numRoots++;
   }
   if (polyOrder%2==1)
   {
-    roots[numRoots]=-coeff[1];
+    roots[numRoots]=-quadCoeff[1];
   }
 }
 
+//Function that sets the precision of the console and
+//acquires the input polynomial from a given text file
 void inputFile(int argc, char *argv[])
 {
   cout << fixed;
@@ -158,16 +155,16 @@ void inputFile(int argc, char *argv[])
   }
 
   polytest >> polyOrder;
-  coeff = new double[polyOrder+1];
+  quadCoeff = new double[polyOrder+1];
   b = new double[polyOrder+1];
   c = new double[polyOrder+1];
-  e = new double[polyOrder+1];
+  inputCoeff = new double[polyOrder+1];
 
   //inputs coefficients
   for (int i=0;i<=polyOrder;i++)
   {
-		polytest >> coeff[polyOrder-i];
-		e[polyOrder-i]=coeff[polyOrder-i];
+		polytest >> quadCoeff[polyOrder-i];
+		inputCoeff[polyOrder-i]=quadCoeff[polyOrder-i];
 	}
 	polytest.close();
 }
@@ -191,9 +188,9 @@ void saveToFile()
 
   for (int i=0; i< polyOrder; i++)
   {
-    saveFile << e[i] << "x^" << polyOrder-i <<" + " ;
+    saveFile << inputCoeff[i] << "x^" << polyOrder-i <<" + " ;
   }
-  saveFile << e[polyOrder] << endl;
+  saveFile << inputCoeff[polyOrder] << endl;
 
   //Saves the roots of the polynomial
   saveFile << endl << "Roots:" << endl;
@@ -227,9 +224,9 @@ void outputToConsole()
   cout << "Polynomial:" << endl;
   for (int i=0; i< polyOrder; i++)
   {
-    cout << e[i] << "x^" << polyOrder-i <<" + " ;
+    cout << inputCoeff[i] << "x^" << polyOrder-i <<" + " ;
   }
-  cout << e[polyOrder] << endl;
+  cout << inputCoeff[polyOrder] << endl;
 
   cout << endl << "Roots: " << endl;
   for (int i=0; i<=numRoots-1; i++)
@@ -258,7 +255,7 @@ void evalRoots()
   {
     for (int i=0; i<polyOrder+1;i++)
     {
-      rootsEval[j]=rootsEval[j]+e[i];
+      rootsEval[j]=rootsEval[j]+inputCoeff[i];
       if (i!=polyOrder)
       {
         rootsEval[j]=rootsEval[j]*roots[j];
@@ -297,4 +294,3 @@ int main(int argc, char *argv[])
 
   return 0;
 }
-
