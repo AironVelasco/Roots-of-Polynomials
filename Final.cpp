@@ -7,7 +7,7 @@
 #include <iomanip>
 
 using namespace std;
-int precisionErrorFlag;
+int precisionChangeFlag;
 int polyOrder;
 int numRoots;
 complex<double> *roots;
@@ -44,19 +44,29 @@ void findQuadraticTerms(int n)
 
 	while ((dabs(dr)+dabs(ds)) > precision)
   {
+    /*This if statement makes it so that if the remainders do not converge after
+    500 iterations and adjusts the precision of convergence to 1 exponent
+    higher.*/
 		if ((iter % 500) == 0)
 		{
 			precision*=10.0;
-			precisionErrorFlag=1;
+			precisionChangeFlag=1;
 		}
+		/* The current r is accounted for to adjust the quadratic coefficients*/
 		b[1] = quadCoeff[1] - r;
 		c[1] = b[1] - r;
-
+    /*This for loop makes the synthetic division required to operate
+    Bairstow's Method. The first one deflates the polynomial to an order 2
+    less than the original. The second adds or subtracts the
+    residuals. */
 		for (int i=2;i<=n;i++)
     {
 			b[i] = quadCoeff[i] - r * b[i-1] - s * b[i-2];
 			c[i] = b[i] - r * c[i-1] - s * c[i-2];
 		}
+		/* The change in value for the guess coefficients are computed for
+		iteratively such that the values for the change in r (signified by dr) and
+		the change in s (signified by ds) is very small and negligible. */
 		dn=c[n-1] * c[n-3] - c[n-2] * c[n-2];
 		drn=b[n] * c[n-3] - b[n-1] * c[n-2];
 		dsn=b[n-1] * c[n-1] - b[n] * c[n-2];
@@ -64,10 +74,15 @@ void findQuadraticTerms(int n)
 		dr = drn / dn;
 		ds = dsn / dn;
 
+    /* The change is then added to create a more precise guess. The hope is
+    that changing the values according to dr will give a closer answer. */
 		r += dr;
 		s += ds;
 		iter++;
 	}
+	/* If the values for r and s (which represent r and s in x^2+rx+s) pass the
+	test, the values of r and s are said to be coefficients of one quadratic
+	factor that contains the root */
 	for (int i=0;i<n-1;i++)
   {
 		quadCoeff[i] = b[i];
@@ -90,7 +105,7 @@ void findRoot()
 
 	b[0]=c[0]=1.0;
   int numQuad = polyOrder;
-	precisionErrorFlag=0;
+	precisionChangeFlag=0;
 	while (numQuad > 2)
   {
 		findQuadraticTerms(numQuad);
@@ -102,6 +117,7 @@ void findRoot()
   numRoots=0;
   for (int l=polyOrder; l>=2; l-=2)
   {
+    //This code does the quadratic formula for both + and - cases.
     quadRoots[0]= (quadCoeff[l-1]*quadCoeff[l-1]-4*quadCoeff[l])/4;
     quadRoots[0]= sqrt(quadRoots[0]);
     quadRoots[0]= quadRoots[0];
@@ -114,6 +130,9 @@ void findRoot()
     roots[numRoots]=quadRoots[1];
     numRoots++;
   }
+  /*If the polynomial is of an odd order, a linear term is expected. Since the
+  leading coefficient was normalized to 1, the linear term is given as -a
+  (assuming the linear eqn is of the form "x-a")*/
   if (polyOrder%2==1)
   {
     roots[numRoots]=-quadCoeff[1];
