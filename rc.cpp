@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <vector>
 
 using namespace std;
 
@@ -54,6 +55,7 @@ int main(int argc, char *argv[])
 {
     int counter = 0;
     double t, amp, freq, phase, dc, speriod, sfreq, volt;
+    vector<double> voltVect;
     string ask;
     wave inputs[5];
     while(true)
@@ -74,7 +76,7 @@ int main(int argc, char *argv[])
       cout << "Inputted Frequency: " << inputs[counter].freq << endl;
       cout << "Inputted Phase: " << inputs[counter].phase << endl;
       cout << "Inputted DC Offset: " << inputs[counter].dc << endl;
-      cout << "Inputted DC Offset: " << inputs[counter].form << endl;
+      cout << "Inputted Waveform: " << inputs[counter].form << endl;
       
       while(true)
       {
@@ -93,7 +95,7 @@ int main(int argc, char *argv[])
     for (int s = 1; s < 5; s++)
       if (inputs[s].freq > sfreq)
         sfreq = inputs[s].freq;
-    speriod = 1/(20*sfreq);
+    speriod = (1/sfreq)/16;
     cout << speriod << endl;
     cout << "For how long? (s) ";
     cin >> t;
@@ -102,8 +104,12 @@ int main(int argc, char *argv[])
       volt = 0;
       for (int r = 0; r < 5; r++)
         volt += inputs[r].sim(s);
-      cout << volt << endl;
+      voltVect.push_back(volt);
     }
+    
+    for (int i=0; i<voltVect.size(); i++)
+      cout << voltVect[i] << endl;
+      
     system("PAUSE");
     return EXIT_SUCCESS;
 }
